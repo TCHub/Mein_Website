@@ -1,0 +1,19 @@
+---
+title: data_cleansing
+author: Conrad Thiele
+date: '2019-04-21'
+draft: false
+categories:
+  - data preparation
+tags:
+  - cleaning
+  - collecting
+  - examining
+  - transforming
+slug: data-cleansing
+image:
+  caption: ''
+  focal_point: ''
+
+---
+This is some text

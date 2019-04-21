@@ -9,6 +9,7 @@ view = 2
 
 # Optional featured image (relative to `static/img/` folder).
 [header]
-image = ""
+image = "./static/img/post.jpg"
 caption = ""
 +++
+This is some text
