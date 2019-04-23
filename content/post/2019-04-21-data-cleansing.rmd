@@ -1,10 +1,13 @@
 ---
-title: data_cleansing
+title: Data Cleansing
 author: Conrad Thiele
 date: '2019-04-21'
-draft: false
+citation_package: biblatex
+csl: ieee-with-url.csl
+bibliography: library.bib
 categories:
   - data preparation
+  - data understanding
 tags:
   - cleaning
   - collecting
@@ -16,4 +19,105 @@ image:
   focal_point: ''
 
 ---
-This is some text
+
+Data preparation plays pivotal role and in my opinion is inter-twinded with data understaning as a foundation to ensuring that, any statistical analysis or algorithm, wrappers, and other assorted machine learning output accurately represent the derived sample.  The output that forms the functional graph is made of  up of careful tranforming, cleaning and examination of data.
+
+In table 1.1 are two samples datasets downloaded from Queensland Government open access dataset and is comprised of wave sensory information from bouys off the Queensland coast for the area's of Mooloolaba and Caloundra. [@MoolooQld][@CalounQld]  
+
+
+First things first, import the dataset. In this case, I will be using RStudio, however there are many software packages for performing all the task showning in the tworiel.[RStudio-Vers]
+```{r Import-Wave-Data}
+maloolaba.waves <- read.csv(file = "./data/mooloolaba_2018-01-01t00_00-2018-10-31t23_30.csv", header = T)
+caloundra.waves <- read.csv(file = "./data/caloundra-pob_2018-01-01t00_00-2018-10-31t23_30.csv", header = T)
+
+
+```
+
+With the data loaded, it is often good to take a quick look for missing values (NA), not a number (NaN), incorrect column headings, and dates/time formats are imported correctly.  This can be down with the function **head()** and **tail()** which, show a subset portion of the first and last rows.  
+
+
+The field names and descriptors are as follows:
+
+* **Hs** - Significant wave height, an average of the highest third of the waves in a record (26.6 minute recording period).
+* **Hmax** - The maximum wave height in the record.
+* **Tz** - The zero upcrossing wave period.
+* **Tp** - The peak energy wave period.
+* **Dir_Tp TRUE** - Direction (related to true north) from which the peak period. Field name Peak.Direction in CSV file.
+* **SST** - Approximation of sea surface temperature
+
+
+```{r Tail-Head}
+head(maloolaba.waves)
+tail(maloolaba.waves)
+
+```
+*Table 1.1 Head and tail of dataset. Dir_Tp TRUE = Peak.Direction*  
+
+As you can see there are rows in *Table 1.1* with the value -99 that does not appear to match up with the field and descriptions.  There are two good reason to remove these values, firstly, they are some kind of sensory data issue which, a form of sampling error and secondly, this will skew the mean and median values for each column as seen in *Table 1.2* which, is close to five number Summary with mean values.  
+
+
+```{r Sumarry-Maloolaba}
+summary(maloolaba.waves)
+```
+*Table 1.2 Adapted Five number summary with mean values*  
+
+Another way to determine outliers is via boxplot as it does a true five number summary. However as each columns range of values (min - max) are completely different then, it is best to do a boxplot for each field except the data.time column. As an example, columns Hs, wave height, and Peak.Direction columns are selected and the outliers coloured red.
+
+```{r Boxplot-Maloolaba, echo=TRUE}
+par(mfrow=c(2,2))
+boxplot(maloolaba.waves$Hs,
+        data=maloolaba.waves,
+        outcol="red",
+        main="Wave Data - Maloolaba - Wave height") 
+
+boxplot(maloolaba.waves$Peak.Direction,
+        data=maloolaba.waves,
+        outcol="red",
+        main="Wave Data - Maloolaba - Peak Direction")
+
+```
+
+As you can see, the box portion of the plot which represents the range between the first and third quartile range is hard to interpret.  This often happens when the distance between outliers is extreme compared to the distance between quartile ranges.  As such it is really hard to determine anything of real value from this plot other than, it definitely has outliers and they need to be removed. 
+
+Need to rework the code. Changing to factors in the replace of -99 to NA's to then remove NA values. May as well direct delete rows containing -99
+
+```{r RM-Outliers}
+
+# Change -99 numeric value to NA (Not Available)
+maloolaba.outliers.RMD <- apply(maloolaba.waves, 2,
+                                function(x) ifelse(x==-99.9, NA, x))
+
+# Remove all rows with NA and the data now become a large array with character values
+maloolaba.outliers.RMD <- na.omit(maloolaba.outliers.RMD)
+
+# Remove/subset date.time. In order to create a dataframe the data is converted to either factor or character
+maloolaba.date.time <- as.data.frame(subset(maloolaba.outliers.RMD, 
+                                            select = Date.Time))
+maloolaba.outliers.RMD <- subset(maloolaba.outliers.RMD, select = -Date.Time)
+# Change character to numeric
+maloolaba.outliers.RMD <- apply(maloolaba.outliers.RMD, 2,
+                                           function(x)as.numeric(as.character(x)))
+
+maloolaba.RMDOL <- cbind(maloolaba.date.time, maloolaba.outliers.RMD)
+
+#maloolaba.outliers.RMD <- as.data.frame(maloolaba.outliers.RMD, 
+#                                        stringsAsFactors = FALSE)
+
+```
+
+```{r RMOL-Boxplot}
+par(mfrow=c(2,2))
+boxplot(maloolaba.RMDOL$Hs,
+        data=maloolaba.RMDOL,
+        main="Wave Data Outliers Removed:/nMaloolaba - Wave height") 
+
+boxplot(maloolaba.RMDOL$Peak.Direction,
+        data=maloolaba.RMDOL,
+        outcol="red",
+        main="Wave Data Outliers Removed:/nMaloolaba - Peak Direction")
+
+```
+
+
+
+### References
