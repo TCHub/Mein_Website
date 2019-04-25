@@ -82,6 +82,6 @@ interests = [
 
 +++
 
-Conrad Thiele is a student researcher currently enrolled in Masters of Data Science at James Cook University and has completed minus one subject in the Diploma of Data Science.  His interest include economic and finance and how they play a pivotal role in governing Australia.
+Conrad Thiele is a student researcher currently enrolled in Masters of Data Science at James Cook University and has completed all minus one subject in the Diploma of Data Science.  His interest include economic and finance and how they play a pivotal role in governing Australia.
 
 Prior to studying data science, Conrad was a registered nurse and enjoyed helping people from all walks of life and had to give up the role when a long standing mental illness forced him to re-evaulate his career which, lead him on the path of learning computer languages.
