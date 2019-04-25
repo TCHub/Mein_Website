@@ -17,13 +17,18 @@ slug: data-cleansing
 image:
   caption: ''
   focal_point: ''
-
 ---
 
-Data preparation plays pivotal role and in my opinion is inter-twinded with data understaning as a foundation to ensuring that, any statistical analysis or algorithm, wrappers, and other assorted machine learning output accurately represent the derived sample.  The output that forms the functional graph is made of  up of careful tranforming, cleaning and examination of data.
+Data preparation plays pivotal role and in my opinion is inter-twined with data understaning as a foundation to ensuring that, any statistical analysis or algorithm, wrappers, and other assorted machine learning output accurately represent the derived sample.  The output that forms the functional graph is made of  up of careful tranforming, cleaning and examination of data.
 
-In table 1.1 are two samples datasets downloaded from Queensland Government open access dataset and is comprised of wave sensory information from bouys off the Queensland coast for the area's of Mooloolaba and Caloundra. [@MoolooQld][@CalounQld]  
+In table 1.1 are two samples datasets downloaded from Queensland Government open access dataset and is comprised of wave sensory information from bouys off the Queensland coast. [@MoolooQld][@CalounQld].  If you would like to download the data used in this tut-tworiel than you can do so via:
 
+```{r Downloadable-CSV}
+
+
+```
+* [Wave Data Maloolaba](./data/mooloolaba_2018-01-01t00_00-2018-10-31t23_30.csv)
+* [Wave Data Caloundra](./data/caloundra-pob_2018-01-01t00_00-2018-10-31t23_30.csv)
 
 First things first, import the dataset. In this case, I will be using RStudio, however there are many software packages for performing all the task showning in the tworiel.[RStudio-Vers]
 ```{r Import-Wave-Data}
@@ -82,39 +87,21 @@ As you can see, the box portion of the plot which represents the range between t
 Need to rework the code. Changing to factors in the replace of -99 to NA's to then remove NA values. May as well direct delete rows containing -99
 
 ```{r RM-Outliers}
-
-# Change -99 numeric value to NA (Not Available)
-maloolaba.outliers.RMD <- apply(maloolaba.waves, 2,
-                                function(x) ifelse(x==-99.9, NA, x))
-
-# Remove all rows with NA and the data now become a large array with character values
-maloolaba.outliers.RMD <- na.omit(maloolaba.outliers.RMD)
-
-# Remove/subset date.time. In order to create a dataframe the data is converted to either factor or character
-maloolaba.date.time <- as.data.frame(subset(maloolaba.outliers.RMD, 
-                                            select = Date.Time))
-maloolaba.outliers.RMD <- subset(maloolaba.outliers.RMD, select = -Date.Time)
-# Change character to numeric
-maloolaba.outliers.RMD <- apply(maloolaba.outliers.RMD, 2,
-                                           function(x)as.numeric(as.character(x)))
-
-maloolaba.RMDOL <- cbind(maloolaba.date.time, maloolaba.outliers.RMD)
-
-#maloolaba.outliers.RMD <- as.data.frame(maloolaba.outliers.RMD, 
-#                                        stringsAsFactors = FALSE)
-
+maloo.RM.outlier <- maloolaba.waves[!(apply(maloolaba.waves[,2:6], 1, 
+                             function(y) dplyr::near(y, -99.9))),]
+# any(abs(y + 99.9) < 1e-9) )
 ```
 
 ```{r RMOL-Boxplot}
 par(mfrow=c(2,2))
-boxplot(maloolaba.RMDOL$Hs,
-        data=maloolaba.RMDOL,
-        main="Wave Data Outliers Removed:/nMaloolaba - Wave height") 
+boxplot(maloo.RM.outlier$Hs,
+        data=maloo.RM.outlier,
+        main="Wave Data Outliers Removed:\nMaloolaba - Wave height") 
 
-boxplot(maloolaba.RMDOL$Peak.Direction,
-        data=maloolaba.RMDOL,
+boxplot(maloo.RM.outlier$Peak.Direction,
+        data=maloo.RM.outlier,
         outcol="red",
-        main="Wave Data Outliers Removed:/nMaloolaba - Peak Direction")
+        main="Wave Data Outliers Removed:\nMaloolaba - Peak Direction")
 
 ```
 

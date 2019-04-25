@@ -12,4 +12,3 @@ view = 2
 image = "./static/img/post.jpg"
 caption = ""
 +++
-This is some text

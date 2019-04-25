@@ -17,13 +17,16 @@ slug: data-cleansing
 image:
   caption: ''
   focal_point: ''
-
 ---
 
 
 
-<p>Data preparation plays pivotal role and in my opinion is inter-twinded with data understaning as a foundation to ensuring that, any statistical analysis or algorithm, wrappers, and other assorted machine learning output accurately represent the derived sample. The output that forms the functional graph is made of up of careful tranforming, cleaning and examination of data.</p>
-<p>In table 1.1 are two samples datasets downloaded from Queensland Government open access dataset and is comprised of wave sensory information from bouys off the Queensland coast for the area’s of Mooloolaba and Caloundra. <span class="citation">[1]</span><span class="citation">[2]</span></p>
+<p>Data preparation plays pivotal role and in my opinion is inter-twined with data understaning as a foundation to ensuring that, any statistical analysis or algorithm, wrappers, and other assorted machine learning output accurately represent the derived sample. The output that forms the functional graph is made of up of careful tranforming, cleaning and examination of data.</p>
+<p>In table 1.1 are two samples datasets downloaded from Queensland Government open access dataset and is comprised of wave sensory information from bouys off the Queensland coast. <span class="citation">[1]</span><span class="citation">[2]</span>. If you would like to download the data used in this tut-tworiel than you can do so via:</p>
+<ul>
+<li><a href="./data/mooloolaba_2018-01-01t00_00-2018-10-31t23_30.csv">Wave Data Maloolaba</a></li>
+<li><a href="./data/caloundra-pob_2018-01-01t00_00-2018-10-31t23_30.csv">Wave Data Caloundra</a></li>
+</ul>
 <p>First things first, import the dataset. In this case, I will be using RStudio, however there are many software packages for performing all the task showning in the tworiel.[RStudio-Vers]</p>
 <pre class="r"><code>maloolaba.waves &lt;- read.csv(file = &quot;./data/mooloolaba_2018-01-01t00_00-2018-10-31t23_30.csv&quot;, header = T)
 caloundra.waves &lt;- read.csv(file = &quot;./data/caloundra-pob_2018-01-01t00_00-2018-10-31t23_30.csv&quot;, header = T)</code></pre>
@@ -84,38 +87,22 @@ boxplot(maloolaba.waves$Peak.Direction,
         data=maloolaba.waves,
         outcol=&quot;red&quot;,
         main=&quot;Wave Data - Maloolaba - Peak Direction&quot;)</code></pre>
-<p><img src="/post/2019-04-21-data-cleansing_files/figure-html/Boxplot-Maloolaba-1.png" width="672" /></p>
+<p><img src="/post/2019-04-21-data-cleansing/2019-04-21-data-cleansing_files/figure-html/Boxplot-Maloolaba-1.png" width="672" /></p>
 <p>As you can see, the box portion of the plot which represents the range between the first and third quartile range is hard to interpret. This often happens when the distance between outliers is extreme compared to the distance between quartile ranges. As such it is really hard to determine anything of real value from this plot other than, it definitely has outliers and they need to be removed.</p>
 <p>Need to rework the code. Changing to factors in the replace of -99 to NA’s to then remove NA values. May as well direct delete rows containing -99</p>
-<pre class="r"><code># Change -99 numeric value to NA (Not Available)
-maloolaba.outliers.RMD &lt;- apply(maloolaba.waves, 2,
-                                function(x) ifelse(x==-99.9, NA, x))
-
-# Remove all rows with NA and the data now become a large array with character values
-maloolaba.outliers.RMD &lt;- na.omit(maloolaba.outliers.RMD)
-
-# Remove/subset date.time. In order to create a dataframe the data is converted to either factor or character
-maloolaba.date.time &lt;- as.data.frame(subset(maloolaba.outliers.RMD, 
-                                            select = Date.Time))
-maloolaba.outliers.RMD &lt;- subset(maloolaba.outliers.RMD, select = -Date.Time)
-# Change character to numeric
-maloolaba.outliers.RMD &lt;- apply(maloolaba.outliers.RMD, 2,
-                                           function(x)as.numeric(as.character(x)))
-
-maloolaba.RMDOL &lt;- cbind(maloolaba.date.time, maloolaba.outliers.RMD)
-
-#maloolaba.outliers.RMD &lt;- as.data.frame(maloolaba.outliers.RMD, 
-#                                        stringsAsFactors = FALSE)</code></pre>
+<pre class="r"><code>maloo.RM.outlier &lt;- maloolaba.waves[!(apply(maloolaba.waves[,2:6], 1, 
+                             function(y) dplyr::near(y, -99.9))),]
+# any(abs(y + 99.9) &lt; 1e-9) )</code></pre>
 <pre class="r"><code>par(mfrow=c(2,2))
-boxplot(maloolaba.RMDOL$Hs,
-        data=maloolaba.RMDOL,
-        main=&quot;Wave Data Outliers Removed:/nMaloolaba - Wave height&quot;) 
+boxplot(maloo.RM.outlier$Hs,
+        data=maloo.RM.outlier,
+        main=&quot;Wave Data Outliers Removed:\nMaloolaba - Wave height&quot;) 
 
-boxplot(maloolaba.RMDOL$Peak.Direction,
-        data=maloolaba.RMDOL,
+boxplot(maloo.RM.outlier$Peak.Direction,
+        data=maloo.RM.outlier,
         outcol=&quot;red&quot;,
-        main=&quot;Wave Data Outliers Removed:/nMaloolaba - Peak Direction&quot;)</code></pre>
-<p><img src="/post/2019-04-21-data-cleansing_files/figure-html/RMOL-Boxplot-1.png" width="672" /></p>
+        main=&quot;Wave Data Outliers Removed:\nMaloolaba - Peak Direction&quot;)</code></pre>
+<p><img src="/post/2019-04-21-data-cleansing/2019-04-21-data-cleansing_files/figure-html/RMOL-Boxplot-1.png" width="672" /></p>
 <div id="references" class="section level3 unnumbered">
 <h3>References</h3>
 <div id="refs" class="references">
