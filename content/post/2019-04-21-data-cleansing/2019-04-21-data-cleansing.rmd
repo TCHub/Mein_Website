@@ -89,8 +89,9 @@ Need to rework the code. Changing to factors in the replace of -99 to NA's to th
 
 ```{r RM-Outliers}
 maloo.RM.outlier <- maloolaba.waves[!(apply(maloolaba.waves[,2:6], 1, 
-                             function(y) dplyr::near(y, -99.9))),]
+                             function(y) any(abs(y + 99.9) < 1e-9))),]
 # any(abs(y + 99.9) < 1e-9) )
+# dplyr::near(y, -99.9))
 ```
 
 ```{r RMOL-Boxplot}
